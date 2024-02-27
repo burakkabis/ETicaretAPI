@@ -1,4 +1,5 @@
 ﻿using ETicaretAPI.Application.Repositories;
+using ETicaretAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,24 +11,27 @@ namespace ETicaretAPI.API.Controllers
     {
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
+        private readonly IOrderWriteRepository _orderWriteRepository;
+        private readonly IOrderReadRepository _orderReadRepository;
 
-        public ProductsController(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository)
+        private readonly ICustomerWriteRepository _customerWriteRepository;
+
+        public ProductsController(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository, IOrderWriteRepository orderWriteRepository, ICustomerWriteRepository customerWriteRepository, IOrderReadRepository readWriteRepository, IOrderReadRepository orderReadRepository)
         {
             _productReadRepository = productReadRepository;
             _productWriteRepository = productWriteRepository;
+            _orderWriteRepository = orderWriteRepository;
+            _customerWriteRepository = customerWriteRepository;
+            _orderReadRepository = orderReadRepository;
         }
         [HttpGet]
         public async Task Get()
         {
-            await _productWriteRepository.AddRangeAsync(new()
-            {
-                new() {Id=Guid.NewGuid(),Name="Product 1",Price=100,CreatedDate=DateTime.UtcNow,Stock=12 },
-                new() {Id=Guid.NewGuid(),Name="Product 2",Price=120,CreatedDate=DateTime.UtcNow,Stock=22 },
-                new() {Id=Guid.NewGuid(),Name="Product 3",Price=130,CreatedDate=DateTime.UtcNow,Stock=32 },
-                new() {Id=Guid.NewGuid(),Name="Product 4",Price=140,CreatedDate=DateTime.UtcNow,Stock=23 },
+            Order order = await _orderReadRepository.GetByIdAsync("ff8a5a00-1d6f-4042-e8b7-08dc37d41949");
+            order.Adress = "Istanbul";
+            await _orderWriteRepository.SaveAsync();
 
-            });
-            await _productWriteRepository.SaveAsync();
+
         }
 
     }
